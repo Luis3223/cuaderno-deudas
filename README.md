@@ -29,6 +29,8 @@ Esta aplicación digitaliza exactamente esa experiencia física pero añadiendo 
 
 ## ✨ Características Principales
 
+* **🎨 Interfaz Profesional de Alto Contraste (Diseñada para Adultos):** Paleta de colores neutros pasteles (fondo papel hueso, blanco sólido, verde salvia y ámbar cálido) con texto carbón de máxima nitidez (WCAG AAA). Cero gradientes chillones o transparencias borrosas; botones grandes y legibles.
+* **🎙️ Registro Rápido por Voz (Dictado Inteligente):** Botón directo para hablarle a la app (*"Mario 15 mil"*, *"Rafael 7000"*, *"Doña Rosa 20 mil"*). Reconoce lenguaje coloquial colombiano, separa el nombre del valor y anota la cuenta automáticamente.
 * **🛒 Fiados anotados al lado:** Visualiza el desglose exacto de cada compra (`$37.000 + $12.000 + $10.000`) sin perder el historial.
 * **➕ Sumar compras en 2 segundos:** Botón directo en cada cliente con atajos de dinero rápido (`+$2.000`, `+$5.000`, `+$10.000`, `+$20.000`, `+$50.000`).
 * **✅ Registrar pagos completos o abonos:**
