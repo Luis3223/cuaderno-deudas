@@ -1,21 +1,20 @@
 // ==========================================
 // CUADERNO DE CUENTAS - LIBRETA DE FIADOS
-// Diseño de Alto Contraste & Registro por Voz
+// Diseño Dark Minimalista & Sin Saturación
 // ==========================================
 
-// INITIAL DATA FROM THE HANDWRITTEN NOTEBOOK
 const DEFAULT_DEBTS = [
   { id: 'd1', name: 'Cristian', amounts: [5000], date: '2026-11-09', notes: '' },
   { id: 'd2', name: 'Corona', amounts: [7000], date: '2026-11-09', notes: '' },
-  { id: 'd3', name: 'Enrrique', amounts: [20000, 15000], date: '2026-11-09', notes: 'Cuaderno: 20.000 + 15.000' },
+  { id: 'd3', name: 'Enrrique', amounts: [20000, 15000], date: '2026-11-09', notes: '20.000 + 15.000' },
   { id: 'd4', name: 'Hija del Donal', amounts: [37000], date: '2026-11-09', notes: '' },
-  { id: 'd5', name: 'Patricia', amounts: [5000, 8000], date: '2026-11-09', notes: 'Cuaderno: 5.000 + 8.000' },
+  { id: 'd5', name: 'Patricia', amounts: [5000, 8000], date: '2026-11-09', notes: '5.000 + 8.000' },
   { id: 'd6', name: 'Miamigo', amounts: [30000], date: '2026-11-09', notes: '' },
-  { id: 'd7', name: 'Chilo', amounts: [5000, 10000], date: '2026-11-09', notes: 'Cuaderno: 5.000 + 10.000' },
+  { id: 'd7', name: 'Chilo', amounts: [5000, 10000], date: '2026-11-09', notes: '5.000 + 10.000' },
   { id: 'd8', name: 'Rovison', amounts: [50000], date: '2026-11-09', notes: '' },
-  { id: 'd9', name: 'Mario', amounts: [37000, 12000, 10000], date: '2026-11-09', notes: 'Cuaderno: 37.000 + 12.000 + 10.000' },
-  { id: 'd10', name: 'Caterine', amounts: [20000, 20000], date: '2026-11-09', notes: 'Cuaderno: 20.000 + 20.000' },
-  { id: 'd11', name: 'Rafael', amounts: [7000, 11000], date: '2026-11-09', notes: 'Cuaderno: 7.000 + 11.000' },
+  { id: 'd9', name: 'Mario', amounts: [37000, 12000, 10000], date: '2026-11-09', notes: '37.000 + 12.000 + 10.000' },
+  { id: 'd10', name: 'Caterine', amounts: [20000, 20000], date: '2026-11-09', notes: '20.000 + 20.000' },
+  { id: 'd11', name: 'Rafael', amounts: [7000, 11000], date: '2026-11-09', notes: '7.000 + 11.000' },
   { id: 'd12', name: 'Ricardito', amounts: [10000], date: '2026-11-09', notes: '' },
   { id: 'd13', name: 'Yarlidis', amounts: [8000], date: '2026-11-09', notes: '' },
   { id: 'd14', name: 'Edinson', amounts: [12000], date: '2026-11-09', notes: '' },
@@ -29,16 +28,14 @@ const DEFAULT_DEBTS = [
 ];
 
 const DEFAULT_PAID = [
-  { id: 'p1', name: 'Negro barbero', amounts: [10000], date: '2026-11-09', paidAt: '2026-11-09', notes: 'Tachado en cuaderno (Ya pagó)' }
+  { id: 'p1', name: 'Negro barbero', amounts: [10000], date: '2026-11-09', paidAt: '2026-11-09', notes: 'Ya pagó' }
 ];
 
-// LocalStorage Keys
 const STORAGE_KEY_PENDING = 'cuaderno_fiados_pending_v1';
 const STORAGE_KEY_PAID = 'cuaderno_fiados_paid_v1';
 const STORAGE_KEY_SORT = 'cuaderno_fiados_sort_v1';
 const STORAGE_KEY_VOICE = 'cuaderno_fiados_voice_v1';
 
-// App State
 let pendingDebts = [];
 let paidDebts = [];
 let currentTab = 'pending';
@@ -46,20 +43,17 @@ let currentSort = 'name-asc';
 let deferredPrompt = null;
 let voiceEnabled = true;
 
-// Voice Dictation (Speech Recognition) State
 let recognition = null;
 let isListening = false;
 let voiceTargetPersonId = null;
 
-// Format Colombian Pesos: 5000 -> "$ 5.000"
 function formatMoney(amount) {
   if (!amount && amount !== 0) return '$ 0';
   return '$ ' + Number(amount).toLocaleString('es-CO');
 }
 
 // ==========================================
-// TEXT-TO-SPEECH (ASISTENTE DE VOZ QUE HABLA)
-// Cero dependencias externas, nativo y ultra rápido
+// TEXT-TO-SPEECH (ASISTENTE DE VOZ)
 // ==========================================
 function initVoice() {
   const saved = localStorage.getItem(STORAGE_KEY_VOICE);
@@ -71,9 +65,7 @@ function initVoice() {
   updateVoiceUI();
   if ('speechSynthesis' in window) {
     window.speechSynthesis.getVoices();
-    window.speechSynthesis.onvoiceschanged = () => {
-      window.speechSynthesis.getVoices();
-    };
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }
 }
 
@@ -87,9 +79,7 @@ function toggleVoice() {
     speak('Voz activada');
   } else {
     showToast('🔇 Voz silenciada', 'warning');
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }
 }
 
@@ -99,10 +89,10 @@ function updateVoiceUI() {
   if (icon) icon.textContent = voiceEnabled ? '🔊' : '🔇';
   if (btn) {
     if (voiceEnabled) {
-      btn.className = "p-2.5 rounded-xl bg-emerald-50 text-emerald-800 border-2 border-emerald-300 hover:bg-emerald-100 transition active:scale-95 text-base";
+      btn.className = "p-2 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition active:scale-95 text-sm";
       btn.title = "Voz activada (Toca para silenciar)";
     } else {
-      btn.className = "p-2.5 rounded-xl bg-stone-100 text-stone-500 border-2 border-stone-300 hover:bg-stone-200 transition active:scale-95 text-base";
+      btn.className = "p-2 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-700 transition active:scale-95 text-sm";
       btn.title = "Voz silenciada (Toca para activar)";
     }
   }
@@ -111,7 +101,7 @@ function updateVoiceUI() {
 function speak(text) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
   try {
-    window.speechSynthesis.cancel(); // Previene cola de audio
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-CO';
     utterance.rate = 1.05;
@@ -125,16 +115,13 @@ function speak(text) {
       v.lang.startsWith('es-MX') || 
       v.lang.startsWith('es')
     );
-    if (spanishVoice) {
-      utterance.voice = spanishVoice;
-    }
+    if (spanishVoice) utterance.voice = spanishVoice;
     window.speechSynthesis.speak(utterance);
   } catch (e) {
     console.error('TTS error:', e);
   }
 }
 
-// Audio feedback helper (Web Audio API)
 function playSound(type) {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -145,20 +132,20 @@ function playSound(type) {
     if (type === 'success') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
-      osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.2);
-      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+      osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.16);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.28);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.35);
+      osc.stop(audioCtx.currentTime + 0.28);
     } else if (type === 'add') {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.14);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.15);
+      osc.stop(audioCtx.currentTime + 0.14);
     }
   } catch (e) {}
 }
@@ -173,28 +160,25 @@ function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `p-3.5 rounded-2xl shadow-clean-lg flex items-center gap-2.5 text-xs font-black transition-all transform duration-300 pointer-events-auto border-2 ${
+  toast.className = `p-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-bold text-white transition-all transform duration-300 pointer-events-auto border ${
     type === 'success' 
-      ? 'bg-[#ecfdf5] border-[#86efac] text-[#065f46]' 
+      ? 'bg-slate-900 border-emerald-500/60 text-emerald-300' 
       : type === 'warning' 
-        ? 'bg-amber-50 border-amber-300 text-amber-950' 
-        : 'bg-stone-900 border-stone-800 text-white'
+        ? 'bg-slate-900 border-amber-500/60 text-amber-300' 
+        : 'bg-slate-900 border-slate-700 text-slate-200'
   }`;
-  toast.innerHTML = `<span class="text-lg">${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️'}</span><span class="flex-1">${message}</span>`;
+  toast.innerHTML = `<span class="text-sm">${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️'}</span><span class="flex-1">${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'translateY(-10px)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    setTimeout(() => toast.remove(), 250);
+  }, 2500);
 }
 
 // ==========================================
-// SPEECH-TO-TEXT (REGISTRO POR VOZ INTELIGENTE)
-// Reconoce el habla coloquial colombiana
+// SPEECH-TO-TEXT (DICTADO POR VOZ)
 // ==========================================
-
-// Parse Spanish phrases like "Mario 15 mil", "Rafael 7000", "5 mil", "veinte mil"
 function parseVoiceInput(text) {
   if (!text || typeof text !== 'string') return null;
 
@@ -204,29 +188,13 @@ function parseVoiceInput(text) {
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Strip common conversational prefixes
   const prefixes = [
-    /^anotarle a\s+/i,
-    /^anotar a\s+/i,
-    /^anotale a\s+/i,
-    /^apuntale a\s+/i,
-    /^apuntar a\s+/i,
-    /^registra a\s+/i,
-    /^registrar a\s+/i,
-    /^agrega a\s+/i,
-    /^agregar a\s+/i,
-    /^cuenta de\s+/i,
-    /^fiado de\s+/i,
-    /^fiado a\s+/i,
-    /^sumar a\s+/i,
-    /^suma a\s+/i,
-    /^cobro a\s+/i
+    /^anotarle a\s+/i, /^anotar a\s+/i, /^anotale a\s+/i, /^apuntale a\s+/i,
+    /^apuntar a\s+/i, /^registra a\s+/i, /^registrar a\s+/i, /^agrega a\s+/i,
+    /^agregar a\s+/i, /^cuenta de\s+/i, /^fiado de\s+/i, /^fiado a\s+/i,
+    /^sumar a\s+/i, /^suma a\s+/i, /^cobro a\s+/i
   ];
-  for (const prefix of prefixes) {
-    cleaned = cleaned.replace(prefix, '');
-  }
-
-  // Remove trailing "pesos", "de fiado", etc.
+  for (const prefix of prefixes) cleaned = cleaned.replace(prefix, '');
   cleaned = cleaned.replace(/\s+(pesos|de fiado|en fiado|deuda)\s*$/i, '').trim();
 
   const units = {
@@ -310,7 +278,7 @@ function parseVoiceInput(text) {
 function startVoiceDictation(targetDebtId = null) {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    showToast('Tu navegador no tiene micrófono activado. Puedes usar el botón de voz del teclado.', 'warning');
+    showToast('Tu celular no tiene reconocimiento de voz activo. Usa el micrófono de tu teclado.', 'warning');
     if (!targetDebtId) openNewDebtModal();
     return;
   }
@@ -322,23 +290,22 @@ function startVoiceDictation(targetDebtId = null) {
   const transcriptEl = document.getElementById('voiceTranscriptText');
   const detectedCard = document.getElementById('voiceDetectedCard');
 
-  transcriptEl.textContent = '(Escuchando... habla hacia el celular)';
+  transcriptEl.textContent = '(Habla hacia el celular...)';
   detectedCard.classList.add('hidden');
 
   if (voiceTargetPersonId) {
     const target = pendingDebts.find(p => p.id === voiceTargetPersonId);
     title.textContent = `Sumar fiado a: ${target ? target.name : 'Cliente'}`;
-    subtitle.innerHTML = `Di el valor que vas a sumarle.<br>Ejemplo: <span class="font-bold text-sky-800">"diez mil"</span> o <span class="font-bold text-sky-800">"25000"</span>`;
+    subtitle.innerHTML = `Di el valor a sumarle. Ej: <span class="text-sky-300 font-semibold">"diez mil"</span> o <span class="text-sky-300 font-semibold">"25000"</span>`;
   } else {
-    title.textContent = 'Escuchando...';
-    subtitle.innerHTML = `Di el nombre y el valor.<br>Ejemplo: <span class="font-bold text-sky-800">"Mario 15 mil"</span> o <span class="font-bold text-sky-800">"Doña Carmen 20000"</span>`;
+    title.textContent = 'Dictar por Voz';
+    subtitle.innerHTML = `Di por ejemplo: <span class="text-sky-300 font-semibold">"Mario 15 mil"</span> o <span class="text-sky-300 font-semibold">"Rafael 7000"</span>`;
   }
 
-  bubble.className = "w-20 h-20 mx-auto rounded-full bg-sky-100 border-4 border-sky-500 flex items-center justify-center text-3xl text-sky-700 mic-listening mb-3 transition";
+  bubble.className = "w-16 h-16 mx-auto rounded-full bg-sky-500/20 border-2 border-sky-400 flex items-center justify-center text-2xl text-sky-400 mic-listening mb-2.5";
 
   openModal('modalVoiceDictation');
-  vibrate(40);
-
+  vibrate(30);
   initRecognitionInstance();
 }
 
@@ -364,31 +331,23 @@ function initRecognitionInstance() {
   recognition.onresult = (event) => {
     let finalTranscript = '';
     let interimTranscript = '';
-
     for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      } else {
-        interimTranscript += event.results[i][0].transcript;
-      }
+      if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+      else interimTranscript += event.results[i][0].transcript;
     }
 
     const currentText = (finalTranscript || interimTranscript).trim();
     document.getElementById('voiceTranscriptText').textContent = `"${currentText}"`;
 
     const parsed = parseVoiceInput(currentText);
-    if (parsed) {
-      updateVoiceDetectedCard(parsed);
-    }
+    if (parsed) updateVoiceDetectedCard(parsed);
   };
 
   recognition.onerror = (event) => {
-    console.warn('Speech recognition error:', event.error);
+    console.warn('Speech error:', event.error);
     document.getElementById('voiceMicBubble').classList.remove('mic-listening');
     if (event.error === 'not-allowed') {
-      document.getElementById('voiceStatusSubtitle').textContent = '⚠️ Permiso de micrófono denegado. Actívalo en la barra del navegador.';
-    } else if (event.error === 'no-speech') {
-      document.getElementById('voiceStatusSubtitle').textContent = 'No se escuchó nada. Toca "Hablar de nuevo" para reintentar.';
+      document.getElementById('voiceStatusSubtitle').textContent = '⚠️ Permiso de micrófono denegado en el navegador.';
     }
   };
 
@@ -399,9 +358,7 @@ function initRecognitionInstance() {
 
   try {
     recognition.start();
-  } catch (err) {
-    console.error('Failed to start recognition:', err);
-  }
+  } catch (err) {}
 }
 
 function updateVoiceDetectedCard(parsed) {
@@ -417,31 +374,26 @@ function updateVoiceDetectedCard(parsed) {
   if (voiceTargetPersonId) {
     const target = pendingDebts.find(p => p.id === voiceTargetPersonId);
     personName = target ? target.name : (parsed.name || '');
-    badgeType.textContent = 'Sumar a cuenta existente';
+    badgeType.textContent = 'Sumar a cliente';
   } else {
     personName = parsed.name || '';
     const existing = pendingDebts.find(p => p.name.toLowerCase() === personName.toLowerCase());
-    if (existing) {
-      badgeType.textContent = 'Cliente ya existe (Se sumará)';
-    } else {
-      badgeType.textContent = 'Nueva Persona';
-    }
+    if (existing) badgeType.textContent = 'Cliente existente (Se sumará)';
+    else badgeType.textContent = 'Nueva Persona';
   }
 
   nameInput.value = personName;
   if (parsed.amount) {
     amountInput.value = parsed.amount;
-    previewMsg.textContent = `Se registrarán ${formatMoney(parsed.amount)} a ${personName || 'esta persona'}.`;
-  } else {
-    previewMsg.textContent = 'Confirma el valor antes de guardar.';
+    previewMsg.textContent = `Registrar ${formatMoney(parsed.amount)} a ${personName || 'esta persona'}.`;
   }
 }
 
 function restartVoiceListening() {
-  document.getElementById('voiceTranscriptText').textContent = '(Escuchando de nuevo... habla ahora)';
+  document.getElementById('voiceTranscriptText').textContent = '(Habla ahora...)';
   document.getElementById('voiceDetectedCard').classList.add('hidden');
   initRecognitionInstance();
-  vibrate(30);
+  vibrate(20);
 }
 
 function stopVoiceDictation(close = false) {
@@ -450,9 +402,7 @@ function stopVoiceDictation(close = false) {
   }
   isListening = false;
   voiceTargetPersonId = null;
-  if (close) {
-    closeModal('modalVoiceDictation');
-  }
+  if (close) closeModal('modalVoiceDictation');
 }
 
 function confirmVoiceRecord() {
@@ -460,15 +410,14 @@ function confirmVoiceRecord() {
   const amount = Number(document.getElementById('voiceParsedAmount').value) || 0;
 
   if (!name && !voiceTargetPersonId) {
-    showToast('Por favor di o escribe el nombre de la persona', 'warning');
+    showToast('Por favor indica el nombre de la persona', 'warning');
     return;
   }
   if (amount <= 0) {
-    showToast('Por favor di o ingresa un valor mayor a $0', 'warning');
+    showToast('Por favor indica un valor mayor a $0', 'warning');
     return;
   }
 
-  // 1. If targeting specific person
   if (voiceTargetPersonId) {
     const person = pendingDebts.find(p => p.id === voiceTargetPersonId);
     if (person) {
@@ -476,7 +425,7 @@ function confirmVoiceRecord() {
       savePendingToStorage();
       stopVoiceDictation(true);
       playSound('add');
-      vibrate(50);
+      vibrate(40);
       const newTotal = getPersonTotal(person);
       showToast(`Sumado ${formatMoney(amount)} a ${person.name}`);
       speak(`Sumado ${amount.toLocaleString('es-CO')} pesos a ${person.name}. Total: ${newTotal.toLocaleString('es-CO')} pesos.`);
@@ -485,34 +434,32 @@ function confirmVoiceRecord() {
     }
   }
 
-  // 2. Check if person already exists by name
   const existing = pendingDebts.find(p => p.name.toLowerCase() === name.toLowerCase());
   if (existing) {
     existing.amounts.push(amount);
     savePendingToStorage();
     stopVoiceDictation(true);
     playSound('add');
-    vibrate(50);
+    vibrate(40);
     const total = getPersonTotal(existing);
-    showToast(`Sumado ${formatMoney(amount)} a la cuenta de ${existing.name}`);
+    showToast(`Sumado ${formatMoney(amount)} a ${existing.name}`);
     speak(`Sumado ${amount.toLocaleString('es-CO')} pesos a ${existing.name}. Total: ${total.toLocaleString('es-CO')} pesos.`);
     render();
     return;
   }
 
-  // 3. Create new debtor
   pendingDebts.unshift({
     id: 'd_' + Date.now(),
     name,
     amounts: [amount],
     date: new Date().toISOString().split('T')[0],
-    notes: 'Registrado por voz'
+    notes: ''
   });
   savePendingToStorage();
   stopVoiceDictation(true);
   playSound('add');
-  vibrate(60);
-  showToast(`¡Cuenta de ${name} registrada por voz!`);
+  vibrate(50);
+  showToast(`¡Cuenta de ${name} anotada!`);
   speak(`Registrado: ${name}. Debe ${amount.toLocaleString('es-CO')} pesos.`);
   render();
 }
@@ -556,11 +503,11 @@ function switchTab(tab) {
   const tabPendingBtn = document.getElementById('tabPendingBtn');
   const tabPaidBtn = document.getElementById('tabPaidBtn');
   if (tab === 'pending') {
-    tabPendingBtn.className = "py-2.5 px-3 rounded-xl font-black text-sm transition flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-sm";
-    tabPaidBtn.className = "py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-stone-700 hover:text-stone-900";
+    tabPendingBtn.className = "py-2 px-3 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white";
+    tabPaidBtn.className = "py-2 px-3 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200";
   } else {
-    tabPaidBtn.className = "py-2.5 px-3 rounded-xl font-black text-sm transition flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-sm";
-    tabPendingBtn.className = "py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-stone-700 hover:text-stone-900";
+    tabPaidBtn.className = "py-2 px-3 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white";
+    tabPendingBtn.className = "py-2 px-3 rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200";
   }
   render();
 }
@@ -604,7 +551,7 @@ function clearSearch() {
 }
 
 // ==========================================
-// RENDER NOTEBOOK CARDS (HIGH CONTRAST & READABILITY)
+// RENDER NOTEBOOK CARDS (CLEAN & MINIMALIST)
 // ==========================================
 function render() {
   const listContainer = document.getElementById('debtsList');
@@ -641,11 +588,11 @@ function render() {
       emptyTitle.textContent = `No se encontró "${searchQuery}"`;
       emptyDesc.textContent = 'Verifica que el nombre esté bien escrito o anota un nuevo fiado.';
     } else if (currentTab === 'paid') {
-      emptyTitle.textContent = 'Aún no hay clientes que hayan pagado';
-      emptyDesc.textContent = 'Cuando alguien pague su deuda, márcalo con "Pagó" y aparecerá aquí.';
+      emptyTitle.textContent = 'Aún no hay clientes en historial';
+      emptyDesc.textContent = 'Cuando un cliente pague completo aparecerá aquí.';
     } else {
-      emptyTitle.textContent = '¡Excelente! No tienes deudas pendientes';
-      emptyDesc.textContent = 'Tus clientes están al día o anota un nuevo fiado con el botón de abajo.';
+      emptyTitle.textContent = '¡Excelente! No hay deudas pendientes';
+      emptyDesc.textContent = 'Todos tus clientes están al día.';
     }
     return;
   }
@@ -655,78 +602,61 @@ function render() {
   list.forEach(item => {
     const total = getPersonTotal(item);
     const isPaidTab = currentTab === 'paid';
-    
-    // Amount pills (Amber pastel with dark warm numbers)
+
+    // Sequence of purchases: e.g. $37.000 + $12.000 + $10.000
     const amountsSequence = (item.amounts && item.amounts.length > 0)
       ? item.amounts.map((amt) => {
           const formattedAmt = Number(amt).toLocaleString('es-CO');
-          return `<span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-amber-50 border-2 border-amber-200 text-amber-950 font-black text-sm sm:text-base font-mono cursor-pointer hover:border-amber-400 active:scale-95 transition" onclick="openEditDebt('${item.id}')" title="Toca para editar">$${formattedAmt}</span>`;
-        }).join(' <span class="text-stone-400 font-black text-sm sm:text-base">+</span> ')
-      : `<span class="text-stone-400 text-xs italic">$0</span>`;
+          return `<span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 font-bold font-mono text-xs sm:text-sm cursor-pointer hover:border-slate-500" onclick="openEditDebt('${item.id}')" title="Toca para editar">$${formattedAmt}</span>`;
+        }).join(' <span class="text-slate-500 font-bold text-xs sm:text-sm">+</span> ')
+      : `<span class="text-slate-500 text-xs italic">$0</span>`;
 
     html += `
-      <div class="card-appear p-4 sm:p-5 rounded-2xl bg-white border-2 ${isPaidTab ? 'border-stone-200 opacity-85' : 'border-stone-200 hover:border-stone-300'} shadow-clean transition">
-        <!-- Top Row: Name & Total -->
-        <div class="flex items-start justify-between gap-2 mb-2.5">
+      <div class="card-appear p-3.5 sm:p-4 rounded-xl bg-[#1e293b] border ${isPaidTab ? 'border-slate-800 opacity-75' : 'border-slate-700/70 hover:border-slate-600'} shadow-sm">
+        
+        <!-- Row 1: Name and Total -->
+        <div class="flex items-center justify-between gap-2 mb-2">
           <div class="flex-1 min-w-0">
-            <h3 class="text-xl sm:text-2xl font-black text-stone-900 tracking-tight truncate flex items-center gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight truncate flex items-center gap-1.5">
               <span>${escapeHtml(item.name)}</span>
-              ${item.notes ? `<span class="text-xs font-semibold text-stone-500">(${escapeHtml(item.notes)})</span>` : ''}
+              ${item.notes ? `<span class="text-[11px] font-normal text-slate-400">(${escapeHtml(item.notes)})</span>` : ''}
             </h3>
           </div>
           <div class="text-right flex-shrink-0">
-            <span class="text-[10px] font-black uppercase tracking-wider block text-stone-500">Total a Pagar</span>
-            <span class="inline-block px-3.5 py-1 rounded-xl ${isPaidTab ? 'bg-stone-100 text-stone-700 border-2 border-stone-200' : 'bg-[#ecfdf5] text-[#065f46] border-2 border-[#86efac]'} text-base sm:text-lg font-black font-mono">
+            <span class="text-base sm:text-lg font-black ${isPaidTab ? 'text-slate-400' : 'text-emerald-400'} font-mono">
               ${formatMoney(total)}
             </span>
           </div>
         </div>
 
-        <!-- Ledger Sequence: Desglose compra por compra -->
-        <div class="mb-3.5 p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center flex-wrap gap-1.5">
-          <span class="text-xs font-black text-stone-700 mr-1 flex items-center gap-1">
-            <span>🛒</span><span>Fiados al lado:</span>
-          </span>
-          <div class="flex items-center flex-wrap gap-1.5">${amountsSequence}</div>
+        <!-- Row 2: Purchases breakdown (Anclado al lado) -->
+        <div class="mb-3 flex items-center flex-wrap gap-1.5">
+          ${amountsSequence}
         </div>
 
-        <!-- Bottom Action Buttons: Big & Clear for Adults -->
-        <div class="flex items-center justify-between gap-2 pt-2 border-t-2 border-stone-100">
+        <!-- Row 3: Action Buttons (Only 2 main + 1 more options) -->
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800">
           ${!isPaidTab ? `
-            <!-- Voice Dictate for this person -->
-            <button onclick="startVoiceDictation('${item.id}')" title="Dictar compra por voz para ${escapeHtml(item.name)}" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border-2 border-sky-300 text-sky-800 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition">
-              <span class="text-base leading-none">🎙️</span>
-              <span class="hidden sm:inline">Voz</span>
+            <button onclick="openAddAmountModal('${item.id}')" class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition">
+              <span class="text-sm font-bold">+</span>
+              <span>Sumar</span>
             </button>
-
-            <!-- Manual Add Beside -->
-            <button onclick="openAddAmountModal('${item.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 border-2 border-stone-300 text-stone-900 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition">
-              <span class="text-base font-black leading-none">+</span><span>Sumar</span>
+            <button onclick="openPayModal('${item.id}')" class="flex-1 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition shadow-sm">
+              <span>✓</span>
+              <span>Pagó</span>
             </button>
-
-            <!-- Full/Partial Payment -->
-            <button onclick="openPayModal('${item.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-95 transition shadow-sm">
-              <span>✓</span><span>Pagó</span>
-            </button>
-
-            <!-- WhatsApp Message -->
-            <button onclick="sendWhatsAppReminder('${item.id}')" title="Enviar cuenta por WhatsApp" class="p-2.5 rounded-xl bg-[#ecfdf5] hover:bg-[#dcfce7] text-[#065f46] border-2 border-[#86efac] active:scale-95 transition text-base">
-              💬
-            </button>
-
-            <!-- Edit / Delete -->
-            <button onclick="openEditDebt('${item.id}')" title="Editar nombre o valores" class="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 border-2 border-stone-300 active:scale-95 transition text-base">
-              ✏️
+            <button onclick="openCardOptions('${item.id}')" title="Más opciones (WhatsApp, Editar, Eliminar)" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold text-xs active:scale-95 transition">
+              ⋮
             </button>
           ` : `
-            <div class="text-xs text-stone-600 font-bold flex items-center gap-1.5">
-              <span class="text-emerald-700 font-black">✓ Pagado completo</span>
+            <div class="text-xs text-slate-400 font-medium flex items-center gap-1">
+              <span class="text-emerald-400 font-bold">✓ Pagado completo</span>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="restoreDebtToPending('${item.id}')" class="py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-amber-900 border-2 border-amber-300 font-black text-xs flex items-center gap-1.5 active:scale-95">
+            <div class="flex items-center gap-1.5">
+              <button onclick="restoreDebtToPending('${item.id}')" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1 active:scale-95">
                 <span>↩</span><span>Restaurar</span>
               </button>
-              <button onclick="deletePaidDebt('${item.id}')" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border-2 border-rose-200 text-xs font-black" title="Eliminar">
+              <button onclick="deletePaidDebt('${item.id}')" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs" title="Eliminar">
                 🗑️
               </button>
             </div>
@@ -747,7 +677,7 @@ function openModal(id) { document.getElementById(id).classList.remove('hidden');
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 window.addEventListener('click', (e) => {
-  ['modalVoiceDictation', 'modalNewDebt', 'modalAddAmount', 'modalPayDebt', 'modalEditDebt', 'modalBackup', 'modalHelp'].forEach(mId => {
+  ['modalVoiceDictation', 'modalNewDebt', 'modalAddAmount', 'modalPayDebt', 'modalCardOptions', 'modalEditDebt', 'modalMenu', 'modalHelp'].forEach(mId => {
     const el = document.getElementById(mId);
     if (el && e.target === el) {
       if (mId === 'modalVoiceDictation') stopVoiceDictation(true);
@@ -759,18 +689,45 @@ window.addEventListener('click', (e) => {
   if (sortMenu && !sortMenu.contains(e.target) && !sortBtn.contains(e.target)) sortMenu.classList.add('hidden');
 });
 
+// Card Options (3 dots menu)
+function openCardOptions(debtId) {
+  const person = pendingDebts.find(p => p.id === debtId);
+  if (!person) return;
+  document.getElementById('cardOptionsDebtId').value = debtId;
+  document.getElementById('cardOptionsName').textContent = person.name;
+  openModal('modalCardOptions');
+}
+
+function handleOptionWhatsApp() {
+  const debtId = document.getElementById('cardOptionsDebtId').value;
+  closeModal('modalCardOptions');
+  sendWhatsAppReminder(debtId);
+}
+
+function handleOptionEdit() {
+  const debtId = document.getElementById('cardOptionsDebtId').value;
+  closeModal('modalCardOptions');
+  openEditDebt(debtId);
+}
+
+function handleOptionDelete() {
+  const debtId = document.getElementById('cardOptionsDebtId').value;
+  closeModal('modalCardOptions');
+  deleteDebtPermanentlyById(debtId);
+}
+
 // 1. New Debt Modal (Manual)
 function openNewDebtModal() {
   document.getElementById('newPersonName').value = '';
   document.getElementById('newPersonAmount').value = '';
   openModal('modalNewDebt');
-  setTimeout(() => document.getElementById('newPersonName').focus(), 150);
+  setTimeout(() => document.getElementById('newPersonName').focus(), 120);
 }
 
 function setNewAmount(val) {
   const input = document.getElementById('newPersonAmount');
   input.value = (Number(input.value) || 0) + val;
-  vibrate(20);
+  vibrate(15);
 }
 
 function saveNewDebt() {
@@ -785,9 +742,9 @@ function saveNewDebt() {
     savePendingToStorage();
     closeModal('modalNewDebt');
     playSound('add');
-    vibrate(40);
+    vibrate(30);
     const total = getPersonTotal(existing);
-    showToast(`Se sumó ${formatMoney(amount)} a la cuenta de ${existing.name}`);
+    showToast(`Sumado ${formatMoney(amount)} a ${existing.name}`);
     speak(`Sumado ${amount.toLocaleString('es-CO')} pesos a ${existing.name}. Total: ${total.toLocaleString('es-CO')} pesos.`);
     render();
     return;
@@ -797,8 +754,8 @@ function saveNewDebt() {
   savePendingToStorage();
   closeModal('modalNewDebt');
   playSound('add');
-  vibrate(50);
-  showToast(`¡Cuenta de ${name} anotada correctamente!`);
+  vibrate(40);
+  showToast(`¡Cuenta de ${name} anotada!`);
   speak(`Registrado: ${name}. Debe ${amount.toLocaleString('es-CO')} pesos.`);
   render();
 }
@@ -814,7 +771,7 @@ function openAddAmountModal(debtId) {
   const input = document.getElementById('additionalAmountInput');
   input.oninput = () => updateSequencePreview(person, Number(input.value) || 0);
   openModal('modalAddAmount');
-  setTimeout(() => input.focus(), 150);
+  setTimeout(() => input.focus(), 120);
 }
 
 function setAddAmount(val) {
@@ -823,7 +780,7 @@ function setAddAmount(val) {
   const debtId = document.getElementById('addAmountDebtId').value;
   const person = pendingDebts.find(p => p.id === debtId);
   if (person) updateSequencePreview(person, Number(input.value));
-  vibrate(20);
+  vibrate(15);
 }
 
 function updateSequencePreview(person, extraAmount) {
@@ -843,7 +800,7 @@ function saveAddAmount() {
   savePendingToStorage();
   closeModal('modalAddAmount');
   playSound('add');
-  vibrate(40);
+  vibrate(30);
   const newTotal = getPersonTotal(person);
   showToast(`Sumado ${formatMoney(amount)} a ${person.name}`);
   speak(`Sumado ${amount.toLocaleString('es-CO')} pesos a ${person.name}. Total: ${newTotal.toLocaleString('es-CO')} pesos.`);
@@ -873,7 +830,7 @@ function confirmFullPayment() {
   savePaidToStorage();
   closeModal('modalPayDebt');
   playSound('success');
-  vibrate(70);
+  vibrate(50);
   showToast(`¡${person.name} pagó ${formatMoney(totalPaid)} completo!`);
   speak(`Cuenta pagada: ${person.name} pagó ${totalPaid.toLocaleString('es-CO')} pesos completo.`);
   render();
@@ -889,12 +846,12 @@ function confirmPartialPayment() {
   if (abono >= currentTotal) { confirmFullPayment(); return; }
   const remaining = currentTotal - abono;
   person.amounts = [remaining];
-  person.notes = `Abonó ${formatMoney(abono)} el ${new Date().toLocaleDateString('es-CO')}`;
+  person.notes = `Abonó ${formatMoney(abono)}`;
   savePendingToStorage();
   closeModal('modalPayDebt');
   playSound('success');
-  vibrate(40);
-  showToast(`Abono de ${formatMoney(abono)} registrado. Nuevo saldo: ${formatMoney(remaining)}`);
+  vibrate(30);
+  showToast(`Abono registrado. Nuevo saldo: ${formatMoney(remaining)}`);
   speak(`Abono registrado: ${person.name} pagó ${abono.toLocaleString('es-CO')} pesos. Le queda debiendo ${remaining.toLocaleString('es-CO')} pesos.`);
   render();
 }
@@ -907,8 +864,8 @@ function restoreDebtToPending(debtId) {
   pendingDebts.unshift(person);
   savePendingToStorage();
   savePaidToStorage();
-  vibrate(30);
-  showToast(`Restaurada la cuenta de ${person.name} a pendientes`);
+  vibrate(20);
+  showToast(`Restaurada la cuenta de ${person.name}`);
   speak(`Cuenta de ${person.name} restaurada a pendientes.`);
   render();
 }
@@ -919,8 +876,8 @@ function deletePaidDebt(debtId) {
   const name = person ? person.name : 'Cliente';
   paidDebts = paidDebts.filter(p => p.id !== debtId);
   savePaidToStorage();
-  showToast('Registro eliminado del historial');
-  speak(`Registro de ${name} eliminado del historial.`);
+  showToast('Registro eliminado');
+  speak(`Registro de ${name} eliminado.`);
   render();
 }
 
@@ -941,10 +898,10 @@ function renderEditAmountsRows(amounts) {
     row.className = 'flex items-center gap-2';
     row.innerHTML = `
       <div class="relative flex-1">
-        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-500 font-black text-sm">$</span>
-        <input type="number" value="${amt}" data-idx="${idx}" class="edit-amount-input w-full pl-8 pr-3 py-2 bg-white border-2 border-stone-300 rounded-xl text-stone-900 font-black text-base focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold text-sm">$</span>
+        <input type="number" value="${amt}" data-idx="${idx}" class="edit-amount-input w-full pl-7 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
       </div>
-      <button type="button" onclick="removeAmountRowFromEdit(${idx})" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border-2 border-rose-300 text-sm font-black" title="Eliminar este valor">✕</button>
+      <button type="button" onclick="removeAmountRowFromEdit(${idx})" class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold" title="Eliminar valor">✕</button>
     `;
     container.appendChild(row);
   });
@@ -957,10 +914,10 @@ function addAmountRowToEdit() {
   row.className = 'flex items-center gap-2';
   row.innerHTML = `
     <div class="relative flex-1">
-      <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-500 font-black text-sm">$</span>
-      <input type="number" value="0" data-idx="${idx}" class="edit-amount-input w-full pl-8 pr-3 py-2 bg-white border-2 border-stone-300 rounded-xl text-stone-900 font-black text-base focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200">
+      <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold text-sm">$</span>
+      <input type="number" value="0" data-idx="${idx}" class="edit-amount-input w-full pl-7 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
     </div>
-    <button type="button" onclick="removeAmountRowFromEdit(${idx})" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border-2 border-rose-300 text-sm font-black" title="Eliminar este valor">✕</button>
+    <button type="button" onclick="removeAmountRowFromEdit(${idx})" class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold" title="Eliminar valor">✕</button>
   `;
   container.appendChild(row);
   row.querySelector('input').focus();
@@ -987,22 +944,20 @@ function saveEditedDebt() {
   closeModal('modalEditDebt');
   playSound('add');
   const total = getPersonTotal(person);
-  showToast('Cambios guardados con éxito');
+  showToast('Cambios guardados');
   speak(`Cuenta actualizada: ${person.name}. Total: ${total.toLocaleString('es-CO')} pesos.`);
   render();
 }
 
-function deleteDebtPermanently() {
-  const debtId = document.getElementById('editDebtId').value;
+function deleteDebtPermanentlyById(debtId) {
   const person = pendingDebts.find(p => p.id === debtId);
   if (!person) return;
   if (!confirm(`¿Eliminar la cuenta de ${person.name} por completo?`)) return;
   const name = person.name;
   pendingDebts = pendingDebts.filter(p => p.id !== debtId);
   savePendingToStorage();
-  closeModal('modalEditDebt');
   showToast(`Cuenta de ${name} eliminada`);
-  speak(`Cuenta de ${name} eliminada por completo.`);
+  speak(`Cuenta de ${name} eliminada.`);
   render();
 }
 
@@ -1011,15 +966,15 @@ function sendWhatsAppReminder(debtId) {
   if (!person) return;
   const total = getPersonTotal(person);
   const amountsStr = person.amounts.map(a => '$' + Number(a).toLocaleString('es-CO')).join(' + ');
-  const message = `Hola ${person.name}, te saludo cordialmente. Paso a compartirte el detalle de la cuenta en la libreta:\n\nCompras fiadas: ${amountsStr}\nTotal pendiente: ${formatMoney(total)}\n\nMuchas gracias por tu atención! 🙏`;
+  const message = `Hola ${person.name}, te comparto el detalle de tu cuenta en la libreta:\n\nCompras fiadas: ${amountsStr}\nTotal pendiente: ${formatMoney(total)}\n\n¡Muchas gracias! 🙏`;
   window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-function openBackupModal() { openModal('modalBackup'); }
+function openMenuModal() { openModal('modalMenu'); }
 function openHelpModal() { openModal('modalHelp'); }
 
 function exportBackupData() {
-  const data = { pendingDebts, paidDebts, exportDate: new Date().toISOString(), version: '2.0' };
+  const data = { pendingDebts, paidDebts, exportDate: new Date().toISOString(), version: '3.0' };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1027,7 +982,7 @@ function exportBackupData() {
   a.download = `cuaderno-cuentas-backup-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Archivo de respaldo descargado');
+  showToast('Respaldo descargado');
 }
 
 function importBackupData(event) {
@@ -1042,12 +997,12 @@ function importBackupData(event) {
         paidDebts = Array.isArray(imported.paidDebts) ? imported.paidDebts : [];
         savePendingToStorage();
         savePaidToStorage();
-        closeModal('modalBackup');
+        closeModal('modalMenu');
         playSound('success');
-        showToast('¡Copia de seguridad restaurada correctamente!');
-        speak('Copia de seguridad restaurada correctamente.');
+        showToast('¡Respaldo restaurado!');
+        speak('Copia de respaldo restaurada con éxito.');
         render();
-      } else { showToast('El archivo no contiene un formato válido', 'warning'); }
+      } else { showToast('El archivo no tiene un formato válido', 'warning'); }
     } catch (err) { showToast('Error al leer el archivo', 'warning'); }
   };
   reader.readAsText(file);
@@ -1058,7 +1013,7 @@ function shareFullSummaryWhatsApp() {
   let text = `📒 *RESUMEN DE CUENTAS - LIBRETA DE FIADOS*\n`;
   text += `📅 Fecha: ${new Date().toLocaleDateString('es-CO')}\n`;
   text += `💰 *TOTAL QUE NOS DEBEN: ${formatMoney(grandTotal)}*\n`;
-  text += `👥 Total personas: ${pendingDebts.length}\n\n`;
+  text += `👥 Personas: ${pendingDebts.length}\n\n`;
   text += `*DETALLE DE CLIENTES:*\n`;
   pendingDebts.forEach((p, idx) => {
     const total = getPersonTotal(p);
@@ -1069,14 +1024,14 @@ function shareFullSummaryWhatsApp() {
 }
 
 function resetToPhotoInitialData() {
-  if (!confirm('¿Seguro que deseas volver a los datos originales de la foto del cuaderno?')) return;
+  if (!confirm('¿Restablecer los datos a como estaban en la foto del cuaderno?')) return;
   pendingDebts = JSON.parse(JSON.stringify(DEFAULT_DEBTS));
   paidDebts = JSON.parse(JSON.stringify(DEFAULT_PAID));
   savePendingToStorage();
   savePaidToStorage();
-  closeModal('modalBackup');
+  closeModal('modalMenu');
   playSound('success');
-  showToast('¡Datos restablecidos a la foto del cuaderno!');
+  showToast('¡Datos de la libreta restablecidos!');
   speak('Datos restablecidos a la libreta original.');
   render();
 }
@@ -1095,8 +1050,7 @@ function setupPWA() {
     deferredPrompt = null;
     const installBanner = document.getElementById('installBanner');
     if (installBanner) installBanner.classList.add('hidden');
-    showToast('¡Aplicación instalada en tu celular con éxito!');
-    speak('Aplicación instalada con éxito en tu celular.');
+    showToast('¡Aplicación instalada con éxito!');
   });
 }
 
