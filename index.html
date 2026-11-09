@@ -53,11 +53,14 @@
           </div>
         </div>
 
-        <!-- Quick actions: Install + Backup + Help -->
+        <!-- Quick actions: Install + Voice + Backup + Help -->
         <div class="flex items-center gap-1.5">
           <button id="installAppBtn" onclick="promptInstallPWA()" class="hidden px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
             <span>📲</span>
             <span class="hidden sm:inline">Instalar</span>
+          </button>
+          <button id="voiceToggleBtn" onclick="toggleVoice()" title="Voz parlante activada (Toca para silenciar)" class="p-2.5 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-600/30 transition active:scale-95 text-base">
+            <span id="voiceIcon">🔊</span>
           </button>
           <button onclick="openBackupModal()" title="Copia de seguridad y opciones" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition active:scale-95 text-base">
             💾

@@ -37,6 +37,12 @@ Esta aplicación digitaliza exactamente esa experiencia física pero añadiendo 
 * **🔍 Buscador instantáneo:** Encuentra a cualquier cliente al escribir las primeras letras de su nombre.
 * **⇅ Filtros y ordenamiento:** Ordena por orden alfabético (A-Z), por mayor deuda o por cuentas más recientes.
 * **💬 Recordatorios por WhatsApp:** Con un solo toque redacta un mensaje cordial con el desglose exacto de la cuenta listo para enviar al cliente.
+* **🗣️ Asistente de Voz Inteligente (Text-to-Speech nativo):**
+  * Anuncia con voz clara el nombre del cliente y el monto al registrar un fiado (*"Registrado: Mario. Debe 37.000 pesos."*).
+  * Anuncia al sumar una compra (*"Sumado 12.000 pesos a Mario. Total: 49.000 pesos."*).
+  * Anuncia pagos y abonos (*"Cuenta pagada: Mario pagó 49.000 pesos completo."*).
+  * **Cero lentitud:** Usa la Web Speech API del navegador, sin librerías externas ni llamadas a servidores externos; funciona instantáneo y offline.
+  * Botón en la barra superior (`🔊` / `🔇`) para silenciar o activar la voz en cualquier momento.
 * **📱 Instalación como App Nativa (PWA):**
   * Icono propio en la pantalla de inicio.
   * Pantalla completa sin barras de navegador.
@@ -109,3 +115,4 @@ Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE)
 ---
 
 Desarrollado con ❤️ por **[Luis Angel Olivera Hernández (Luis3223)](https://github.com/Luis3223)**.
+
