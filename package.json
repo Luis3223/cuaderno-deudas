@@ -1,0 +1,32 @@
+{
+  "name": "cuaderno-deudas",
+  "version": "1.0.0",
+  "description": "Aplicación Web Progresiva (PWA) rápida y accesible para el control y registro de deudas y cuentas fiadas en pequeños negocios y tiendas de barrio.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3000 .",
+    "dev": "npx serve -l 3000 .",
+    "generate-icons": "node scripts/generate-icons.js"
+  },
+  "keywords": [
+    "pwa",
+    "cuaderno-deudas",
+    "fiados",
+    "tienda",
+    "pos",
+    "offline-first",
+    "colombia",
+    "gestion-deudas",
+    "javascript"
+  ],
+  "author": "Luis Angel Olivera Hernández <luisangeloliverahernandez027@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luis3223/cuaderno-deudas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Luis3223/cuaderno-deudas/issues"
+  },
+  "homepage": "https://cuaderno-deudas-pwa.vercel.app",
+  "license": "MIT"
+}

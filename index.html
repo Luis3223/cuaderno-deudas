@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cuaderno de Cuentas - Libreta de Fiados</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mi Cuaderno">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+
+  <!-- Google Fonts & Tailwind CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-slate-100 font-sans min-h-screen pb-28 selection:bg-emerald-500 selection:text-white">
+
+  <!-- Top Sticky Navigation & Summary -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+    <div class="max-w-2xl mx-auto px-4 py-3">
+      <!-- Title row -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-900/40 border border-emerald-400/30">
+            <span class="text-2xl">📒</span>
+          </div>
+          <div>
+            <h1 class="text-lg font-black tracking-tight text-white flex items-center gap-1.5 leading-tight">
+              Libreta de Cuentas
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PWA</span>
+            </h1>
+            <p class="text-xs text-slate-400 font-medium">Control fácil de fiados del negocio</p>
+          </div>
+        </div>
+
+        <!-- Quick actions: Install + Backup + Help -->
+        <div class="flex items-center gap-1.5">
+          <button id="installAppBtn" onclick="promptInstallPWA()" class="hidden px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+            <span>📲</span>
+            <span class="hidden sm:inline">Instalar</span>
+          </button>
+          <button onclick="openBackupModal()" title="Copia de seguridad y opciones" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition active:scale-95 text-base">
+            💾
+          </button>
+          <button onclick="openHelpModal()" title="Instrucciones para la familia" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition active:scale-95 text-base">
+            ❓
+          </button>
+        </div>
+      </div>
+
+      <!-- Grand Total Highlight Card -->
+      <div class="mt-3 p-4 rounded-2xl bg-gradient-to-r from-emerald-900/80 via-emerald-800/70 to-teal-900/80 border border-emerald-500/40 shadow-xl shadow-emerald-950/50">
+        <div class="flex items-center justify-between text-xs font-bold text-emerald-300 uppercase tracking-wider mb-1">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            Total que te deben (Fiado)
+          </span>
+          <span id="debtorsCountBadge" class="bg-emerald-500/30 text-emerald-200 px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+            0 personas
+          </span>
+        </div>
+        <div class="flex items-baseline justify-between gap-2 flex-wrap">
+          <div id="grandTotalDisplay" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
+            $ 0
+          </div>
+          <div class="text-xs text-emerald-200/80 flex items-center gap-1">
+            <span>Actualizado al instante</span>
+            <span class="text-emerald-400">✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-2xl mx-auto px-4 pt-4">
+    
+    <!-- Install PWA Banner (If not installed yet) -->
+    <div id="installBanner" class="hidden mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 shadow-lg">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">📲</div>
+        <div>
+          <p class="text-xs font-bold text-amber-200">¿Quieres tenerla como app en tu celular?</p>
+          <p class="text-[11px] text-amber-300/80">Ábrela con un toque desde la pantalla sin internet</p>
+        </div>
+      </div>
+      <button onclick="promptInstallPWA()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 whitespace-nowrap">
+        Instalar Ahora
+      </button>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="space-y-3 mb-4">
+      <div class="relative">
+        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-lg">
+          🔍
+        </span>
+        <input 
+          type="text" 
+          id="searchInput" 
+          oninput="handleSearch()"
+          placeholder="Buscar persona (ej: Mario, Cristian, Rafael...)" 
+          class="w-full pl-11 pr-10 py-3.5 bg-slate-800/90 border border-slate-700/80 rounded-2xl text-slate-100 placeholder-slate-400 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-inner transition"
+        >
+        <button 
+          id="clearSearchBtn" 
+          onclick="clearSearch()" 
+          class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition text-lg"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Tab Buttons: Pendientes vs Ya Pagaron -->
+      <div class="flex items-center gap-2">
+        <div class="flex-1 grid grid-cols-2 p-1 bg-slate-800/90 rounded-2xl border border-slate-700/80">
+          <button 
+            id="tabPendingBtn" 
+            onclick="switchTab('pending')" 
+            class="py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md"
+          >
+            <span>⏳ Pendientes</span>
+            <span id="pendingTabCount" class="text-xs px-2 py-0.5 rounded-full bg-emerald-700 text-emerald-100 font-extrabold">0</span>
+          </button>
+          <button 
+            id="tabPaidBtn" 
+            onclick="switchTab('paid')" 
+            class="py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200"
+          >
+            <span>✅ Ya Pagaron</span>
+            <span id="paidTabCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-extrabold">0</span>
+          </button>
+        </div>
+
+        <!-- Sort dropdown button -->
+        <div class="relative">
+          <button 
+            onclick="toggleSortMenu()" 
+            id="sortMenuBtn"
+            title="Ordenar lista"
+            class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
+          >
+            <span>⇅</span>
+            <span class="hidden sm:inline" id="sortLabel">A-Z</span>
+          </button>
+          
+          <div id="sortMenu" class="hidden absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl py-1 z-40 text-xs font-semibold">
+            <button onclick="setSort('name-asc')" class="w-full text-left px-4 py-2.5 hover:bg-slate-700 flex items-center justify-between text-slate-200">
+              <span>🔤 Nombre (A - Z)</span>
+              <span id="check-name-asc" class="text-emerald-400">✓</span>
+            </button>
+            <button onclick="setSort('debt-desc')" class="w-full text-left px-4 py-2.5 hover:bg-slate-700 flex items-center justify-between text-slate-200">
+              <span>💰 Mayor deuda</span>
+              <span id="check-debt-desc" class="text-emerald-400 hidden">✓</span>
+            </button>
+            <button onclick="setSort('debt-asc')" class="w-full text-left px-4 py-2.5 hover:bg-slate-700 flex items-center justify-between text-slate-200">
+              <span>🪙 Menor deuda</span>
+              <span id="check-debt-asc" class="text-emerald-400 hidden">✓</span>
+            </button>
+            <button onclick="setSort('recent')" class="w-full text-left px-4 py-2.5 hover:bg-slate-700 flex items-center justify-between text-slate-200">
+              <span>🕒 Más recientes</span>
+              <span id="check-recent" class="text-emerald-400 hidden">✓</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state message -->
+    <div id="emptyState" class="hidden py-16 text-center px-4">
+      <div class="text-5xl mb-3">🎉</div>
+      <h3 class="text-lg font-bold text-slate-200 mb-1" id="emptyTitle">No hay deudas pendientes</h3>
+      <p class="text-sm text-slate-400 max-w-xs mx-auto" id="emptyDesc">Todas las cuentas están saldadas o no coinciden con la búsqueda.</p>
+    </div>
+
+    <!-- Debts List (The Digital Notebook) -->
+    <div id="debtsList" class="space-y-3.5"></div>
+  </main>
+
+  <!-- Big Thumb-Friendly Floating Action Button -->
+  <div class="fixed bottom-5 inset-x-0 max-w-2xl mx-auto px-4 z-20 pointer-events-none">
+    <div class="flex justify-end pointer-events-auto">
+      <button 
+        onclick="openNewDebtModal()" 
+        class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-base shadow-2xl shadow-emerald-950/80 border border-emerald-400/40 flex items-center justify-center gap-3 transition transform active:scale-95"
+      >
+        <span class="text-2xl leading-none font-black">+</span>
+        <span>Anotar Nueva Cuenta / Fiado</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <!-- Modal 1: Anotar Nueva Cuenta -->
+  <div id="modalNewDebt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📝</span>
+          <h3 class="text-lg font-black text-white">Nueva Cuenta en Libreta</h3>
+        </div>
+        <button onclick="closeModal('modalNewDebt')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+            Nombre de la Persona:
+          </label>
+          <input 
+            type="text" 
+            id="newPersonName" 
+            placeholder="Ej: Doña Carmen, Andres, etc."
+            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-lg font-bold placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+            ¿Cuánto quedó debiendo? (Valor):
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-extrabold text-lg">$</span>
+            <input 
+              type="number" 
+              id="newPersonAmount" 
+              placeholder="0"
+              class="w-full pl-9 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-2xl font-black placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs text-slate-400 font-semibold mb-2">Botones rápidos para sumar valor:</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setNewAmount(2000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$2.000</button>
+            <button type="button" onclick="setNewAmount(5000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$5.000</button>
+            <button type="button" onclick="setNewAmount(10000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$10.000</button>
+            <button type="button" onclick="setNewAmount(15000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$15.000</button>
+            <button type="button" onclick="setNewAmount(20000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$20.000</button>
+            <button type="button" onclick="setNewAmount(50000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$50.000</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-3">
+        <button onclick="closeModal('modalNewDebt')" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm">
+          Cancelar
+        </button>
+        <button onclick="saveNewDebt()" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-lg shadow-emerald-900/50 flex items-center justify-center gap-1.5">
+          <span>💾 Guardar Cuenta</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Agregar Valor al Lado -->
+  <div id="modalAddAmount" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div>
+          <h3 class="text-lg font-black text-white flex items-center gap-1.5">
+            <span>➕ Sumar al lado a:</span>
+            <span id="addAmountPersonName" class="text-emerald-400"></span>
+          </h3>
+          <p class="text-xs text-slate-400">Se agregará al lado como en el cuaderno</p>
+        </div>
+        <button onclick="closeModal('modalAddAmount')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <input type="hidden" id="addAmountDebtId">
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+            Nuevo valor fiado:
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-extrabold text-lg">$</span>
+            <input 
+              type="number" 
+              id="additionalAmountInput" 
+              placeholder="0"
+              class="w-full pl-9 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-2xl font-black placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs text-slate-400 font-semibold mb-2">Toque para sumar rápido:</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="setAddAmount(2000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$2.000</button>
+            <button type="button" onclick="setAddAmount(5000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$5.000</button>
+            <button type="button" onclick="setAddAmount(10000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$10.000</button>
+            <button type="button" onclick="setAddAmount(15000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$15.000</button>
+            <button type="button" onclick="setAddAmount(20000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$20.000</button>
+            <button type="button" onclick="setAddAmount(50000)" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-extrabold text-emerald-400">+$50.000</button>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+          <p class="text-xs text-slate-400 font-bold mb-1">Así quedará en la libreta:</p>
+          <p id="amountSequencePreview" class="text-sm font-black text-amber-300 font-mono"></p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-3">
+        <button onclick="closeModal('modalAddAmount')" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm">
+          Cancelar
+        </button>
+        <button onclick="saveAddAmount()" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-lg shadow-emerald-900/50 flex items-center justify-center gap-1.5">
+          <span>➕ Sumar al Lado</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Marcar como Pagado / Cobrar / Abono -->
+  <div id="modalPayDebt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">💰</span>
+          <h3 class="text-lg font-black text-white">Registrar Pago</h3>
+        </div>
+        <button onclick="closeModal('modalPayDebt')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <input type="hidden" id="payDebtId">
+
+      <div class="text-center py-2">
+        <p class="text-sm text-slate-400 font-medium">Cliente:</p>
+        <h4 id="payPersonName" class="text-2xl font-black text-white mb-2"></h4>
+        <div class="inline-block px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+          <span class="text-xs text-emerald-300 font-bold uppercase tracking-wider block">Deuda total acumulada</span>
+          <span id="payPersonTotal" class="text-3xl font-extrabold text-emerald-400"></span>
+        </div>
+      </div>
+
+      <button onclick="confirmFullPayment()" class="w-full py-4 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base shadow-xl shadow-emerald-950 flex items-center justify-center gap-2 transition active:scale-95">
+        <span>✅ Ya pagó TODO completo</span>
+      </button>
+
+      <div class="pt-2 border-t border-slate-800">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">¿Va a pagar solo una parte? (Abono):</p>
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">$</span>
+            <input 
+              type="number" 
+              id="partialPaymentAmount" 
+              placeholder="¿Cuánto abona?"
+              class="w-full pl-8 pr-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-bold text-base focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+          </div>
+          <button onclick="confirmPartialPayment()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 font-black text-sm active:scale-95">
+            Abonar
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeModal('modalPayDebt')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 font-semibold text-xs">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Editar Nombre o Valores -->
+  <div id="modalEditDebt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">✏️</span>
+          <h3 class="text-lg font-black text-white">Editar Cuenta</h3>
+        </div>
+        <button onclick="closeModal('modalEditDebt')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <input type="hidden" id="editDebtId">
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+            Nombre de la Persona:
+          </label>
+          <input 
+            type="text" 
+            id="editPersonName" 
+            class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-lg font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+            Lista de Valores Fiados:
+          </label>
+          <div id="editAmountsList" class="space-y-2"></div>
+          <button type="button" onclick="addAmountRowToEdit()" class="mt-2 text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+            <span>+ Agregar otro valor</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-4 flex flex-col gap-2">
+        <div class="flex gap-2">
+          <button onclick="closeModal('modalEditDebt')" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm">
+            Cancelar
+          </button>
+          <button onclick="saveEditedDebt()" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm">
+            Guardar Cambios
+          </button>
+        </div>
+
+        <button onclick="deleteDebtPermanently()" class="w-full py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs">
+          🗑️ Eliminar esta cuenta por completo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Copia de Seguridad -->
+  <div id="modalBackup" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">💾</span>
+          <h3 class="text-lg font-black text-white">Copia de Seguridad y Datos</h3>
+        </div>
+        <button onclick="closeModal('modalBackup')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Los datos se guardan en la memoria de este dispositivo. Para no perderlos nunca si cambias de celular:
+        </p>
+
+        <button onclick="exportBackupData()" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold flex items-center justify-between text-xs">
+          <span class="flex items-center gap-2">
+            <span>📥</span>
+            <span>Descargar archivo de respaldo</span>
+          </span>
+          <span class="text-emerald-400">Descargar</span>
+        </button>
+
+        <div class="relative">
+          <input type="file" id="importFileInput" accept=".json" onchange="importBackupData(event)" class="hidden">
+          <button onclick="document.getElementById('importFileInput').click()" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold flex items-center justify-between text-xs">
+            <span class="flex items-center gap-2">
+              <span>📤</span>
+              <span>Restaurar desde archivo de respaldo</span>
+            </span>
+            <span class="text-amber-400">Subir archivo</span>
+          </button>
+        </div>
+
+        <button onclick="shareFullSummaryWhatsApp()" class="w-full py-3 px-4 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 font-bold flex items-center justify-between text-xs">
+          <span class="flex items-center gap-2">
+            <span>💬</span>
+            <span>Enviar reporte completo a WhatsApp</span>
+          </span>
+          <span class="text-emerald-400">Enviar</span>
+        </button>
+
+        <div class="pt-3 border-t border-slate-800">
+          <p class="text-[11px] text-slate-400 mb-2">Si necesitas volver a como estaba en la foto del cuaderno inicial:</p>
+          <button onclick="resetToPhotoInitialData()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs flex items-center justify-center gap-2">
+            <span>🔄 Restablecer datos originales del cuaderno</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeModal('modalBackup')" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Ayuda / Cómo instalar -->
+  <div id="modalHelp" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📱</span>
+          <h3 class="text-lg font-black text-white">¿Cómo instalar en el Celular?</h3>
+        </div>
+        <button onclick="closeModal('modalHelp')" class="p-2 text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-300">
+        <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+          <p class="font-bold text-emerald-300 text-sm mb-1">🤖 En Celulares Android (Chrome):</p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-300">
+            <li>Toca los <strong>tres puntos (⋮)</strong> en la esquina superior derecha de Google Chrome.</li>
+            <li>Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.</li>
+            <li>¡Listo! Te aparecerá el icono de la <strong>Libreta</strong> junto a tus aplicaciones como WhatsApp.</li>
+          </ol>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/30">
+          <p class="font-bold text-sky-300 text-sm mb-1">🍎 En Celulares iPhone (Safari):</p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-300">
+            <li>Toca el botón <strong>Compartir (cuadrado con flecha hacia arriba)</strong> en la parte inferior.</li>
+            <li>Baja un poco y toca en <strong>"Agregar al inicio"</strong>.</li>
+            <li>Toca "Agregar" arriba a la derecha.</li>
+          </ol>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700">
+          <p class="font-bold text-white text-sm mb-1">⚡ Funciona sin Internet:</p>
+          <p class="text-slate-400">Puedes abrirla aunque no tengas datos o Wi-Fi en la tienda. Todo se guarda seguro en el teléfono.</p>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeModal('modalHelp')" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fixed top-4 inset-x-0 max-w-sm mx-auto px-4 pointer-events-none z-50 space-y-2"></div>
+
+  <!-- Load App Script -->
+  <script src="app.js"></script>
+</body>
+</html>

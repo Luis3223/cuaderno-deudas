@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.25" />
+    </filter>
+  </defs>
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+  
+  <!-- Notebook Cover -->
+  <g filter="url(#shadow)">
+    <!-- Main Book -->
+    <rect x="110" y="80" width="310" height="352" rx="24" fill="#FFFFFF" />
+    <!-- Book spine / margin -->
+    <rect x="110" y="80" width="48" height="352" rx="12" fill="#E2E8F0" />
+    <!-- Spiral binder holes -->
+    <circle cx="134" cy="120" r="10" fill="#047857" />
+    <circle cx="134" cy="170" r="10" fill="#047857" />
+    <circle cx="134" cy="220" r="10" fill="#047857" />
+    <circle cx="134" cy="270" r="10" fill="#047857" />
+    <circle cx="134" cy="320" r="10" fill="#047857" />
+    <circle cx="134" cy="370" r="10" fill="#047857" />
+    <circle cx="134" cy="400" r="6" fill="#047857" />
+
+    <!-- Ledger ruled lines -->
+    <line x1="180" y1="140" x2="390" y2="140" stroke="#CBD5E1" stroke-width="6" stroke-linecap="round" />
+    <line x1="180" y1="190" x2="390" y2="190" stroke="#CBD5E1" stroke-width="6" stroke-linecap="round" />
+    <line x1="180" y1="240" x2="390" y2="240" stroke="#CBD5E1" stroke-width="6" stroke-linecap="round" />
+    <line x1="180" y1="290" x2="390" y2="290" stroke="#CBD5E1" stroke-width="6" stroke-linecap="round" />
+    
+    <!-- Dollar / Peso Badge -->
+    <circle cx="340" cy="330" r="62" fill="url(#gold)" filter="url(#shadow)" />
+    <text x="340" y="358" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="900" fill="#78350F" text-anchor="middle">$</text>
+  </g>
+</svg>
